@@ -24,8 +24,10 @@
 
     <form action="item.html" th:action th:object="${item}" method="post">
 
-        <div th:if="${errors?.containsKey('globalError')}"> <!--erros가 null이면 무시한다.-->
-            <p class="field-error" th:text="${errors['globalError']}">전체 오류 메시지</p>
+<!--        <div th:if="${errors?.containsKey('globalError')}"> &lt;!&ndash;erros가 null이면 무시한다.&ndash;&gt;-->
+        <div th:if="${#fields.hasGlobalErrors()}"> <!--erros가 null이면 무시한다.-->
+            <p class="field-error" th:each="err: ${#fields.globalErrors()}" th:text="${err}">전체 오류 메시지</p>
+<!--            글로벌 오류는 여러개일 수 있기에 반복문 돌린다.-->
         </div>
 
 
@@ -34,7 +36,9 @@
             <input type="text" id="itemName" th:field="*{itemName}"
                    th:class="${errors?.containsKey('itemName')} ? 'form-control field-error' : 'form-control'"
                    class="form-control" placeholder="이름을 입력하세요">
-            <div class="field-error" th:if="${errors?.containsKey('itemName')}" th:text="${errors['itemName']}">
+<!--            <div class="field-error" th:if="${errors?.containsKey('itemName')}" th:text="${errors['itemName']}">-->
+            <div class="field-error" th:errors="*{itemName}">
+            <!--에러가 있으면 해당 div 표시 if문 로직이 다 들어가져있다.-->
                 상품명 오류
             </div>
         </div>
