@@ -46,11 +46,14 @@ public class ValidationItemControllerV2 {
         return "validation/v2/addForm";
     }
 
-    @PostMapping("/add")
-    //item객체에 바인딩 된 결과과 bindingResult에 담기기 때문에 BindingResult는 ModelAttribute 바로뒤에 가야한다.
+//    @PostMapping("/add")
     public String addItemV1(@ModelAttribute Item item, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
+    //item객체에 바인딩 된 결과과 bindingResult에 담기기 때문에 BindingResult는 ModelAttribute 바로뒤에 가야한다.
 
         //bindingResult가 errors 역할을 해준다. 스프링이 제공하는 메커니즘
+        //binding: 검증오류를 보관하는 객체, @ModelAttribute에 데이터 바인딩시 오류가 발생해도 컨트롤러가 호출된다.
+        //BindingResult가 없으면 -> 400 오류 발생하면서 컨트롤러 호출되지 않고 오류페이지로 이동
+        //BindingResult가 있으면 -> 오류정보('FieldError')를 BindingResult에 담아서 컨트롤러를 정상 호출한다.
 
         //검증 로직(필드 룰)
         if(!StringUtils.hasText(item.getItemName())){
@@ -76,6 +79,55 @@ public class ValidationItemControllerV2 {
         if(bindingResult.hasErrors()){
             log.info("error ={}", bindingResult);
            // model.addAttribute("errors", errors);
+            //bindingResult는 자동으로 뷰에 넘어가기 때문에 굳이 model.addAttribute에 넣지 않아도 된다.
+            return  "validation/v2/addForm";
+
+        }
+
+        //성공 로직
+        Item savedItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId", savedItem.getId());
+        redirectAttributes.addAttribute("status", true);
+        return "redirect:/validation/v2/items/{itemId}";
+    }
+
+    @PostMapping("/add")
+    public String addItemV2(@ModelAttribute Item item, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
+
+        //bindingResult가 errors 역할을 해준다. 스프링이 제공하는 메커니즘
+        //binding: 검증오류를 보관하는 객체, @ModelAttribute에 데이터 바인딩시 오류가 발생해도 컨트롤러가 호출된다.
+        //BindingResult가 없으면 -> 400 오류 발생하면서 컨트롤러 호출되지 않고 오류페이지로 이동
+        //BindingResult가 있으면 -> 오류정보('FieldError')를 BindingResult에 담아서 컨트롤러를 정상 호출한다.
+
+        //검증 로직(필드 룰)
+        if(!StringUtils.hasText(item.getItemName())){
+            bindingResult.addError(new FieldError("item", "itemName", item.getItemName(),false, null,null, "상품이름은 필수입니다."));
+            //FieldError에는 생성자가 2개 있다.
+            //rejectedValue – the rejected field value
+            //bindingFailure – whether this error represents a binding failure (like a type mismatch); else, it is a validation failure, 데이터 자체가 넘어가는게 실패했는지
+            //codes – the codes to be used to resolve this message, 메시지 코드
+            //arguments – the array of arguments to be used to resolve this message, 메시지에서 사용하는 인자
+        }
+        if(item.getPrice() == null || item.getPrice() < 1000  || item.getPrice() > 1000000){
+            bindingResult.addError(new FieldError("item", "price", item.getPrice(),false,null,null, "가격은 1,000 ~ 1,000,000 까지 허용합니다."));
+        }
+        if(item.getQuantity() == null || item.getQuantity() >= 9999){
+            bindingResult.addError(new FieldError("item", "quantity", item.getQuantity(),false,null,null, "수량은 최대 9,999 까지 허용합니다."));
+        }
+
+        //특정 필드가 아닌 복합 룰 검증
+        if(item.getPrice() != null && item.getQuantity() !=null){
+            int resultPrice = item.getPrice() * item.getQuantity();
+            if(resultPrice <10000){
+                bindingResult.addError(new ObjectError("item", null, null, "가격 * 수량의 합은 10,000원 이상어야 합니다. 현재값: " + resultPrice));                         //특정 필드의 오류가 아닌 global 오류이기 때문
+                //특정 필드의 오류가 아닌 global 오류이기 때문
+            }
+        }
+
+        //검증에 실패하면 다시 입력 폼으로
+        if(bindingResult.hasErrors()){
+            log.info("error ={}", bindingResult);
+            // model.addAttribute("errors", errors);
             //bindingResult는 자동으로 뷰에 넘어가기 때문에 굳이 model.addAttribute에 넣지 않아도 된다.
             return  "validation/v2/addForm";
 

@@ -49,6 +49,7 @@
             <input type="text" id="price" th:field="*{price}"
                    th:errorclass="field-error"
                    class="form-control" placeholder="가격을 입력하세요">
+<!--            th:field: 정상 상황ㅎ에서는 모델 객체의 값을 사용하지만, 오류가 발생하면 FieldError에서 보관한 값을 사용해서 값을 출력한다.-->
             <div class="field-error" th:errors="*{price}">
                 가격 오류
             </div>
