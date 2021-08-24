@@ -34,29 +34,29 @@
         <div>
             <label for="itemName" th:text="#{label.item.itemName}">상품명</label>
             <input type="text" id="itemName" th:field="*{itemName}"
-                   th:class="${errors?.containsKey('itemName')} ? 'form-control field-error' : 'form-control'"
-                   class="form-control" placeholder="이름을 입력하세요">
+                   th:errorclass="field-error" class="form-control" placeholder="이름을 입력하세요">
+<!--            -> th:field의 필드명으로 된 오류가 있다면  css 클래스("form-control")에 'field-error'를 추가해준다.-->
+<!--               th:class="${errors?.containsKey('itemName')} ? 'form-control field-error' : 'form-control'"-->
+
 <!--            <div class="field-error" th:if="${errors?.containsKey('itemName')}" th:text="${errors['itemName']}">-->
+            <!--에러가 있으면 해당 div 표시 if문 로직이 다 들어가져있다. 에러 없으면 출력안된다-->
             <div class="field-error" th:errors="*{itemName}">
-            <!--에러가 있으면 해당 div 표시 if문 로직이 다 들어가져있다.-->
                 상품명 오류
             </div>
         </div>
         <div>
             <label for="price" th:text="#{label.item.price}">가격</label>
             <input type="text" id="price" th:field="*{price}"
-                   th:class="${errors?.containsKey('itemPrice')} ? 'form-control field-error' : 'form-control'"
+                   th:errorclass="field-error"
                    class="form-control" placeholder="가격을 입력하세요">
-            <div class="field-error" th:if="${errors?.containsKey('itemPrice')}" th:text="${errors['itemPrice']}">
+            <div class="field-error" th:errors="*{price}">
                 가격 오류
             </div>
         </div>
         <div>
             <label for="quantity" th:text="#{label.item.quantity}">수량</label>
-            <input type="text" id="quantity" th:field="*{quantity}"
-                   th:class="${errors?.containsKey('quantity')} ? 'form-control field-error' : 'form-control'"
-                   class="form-control" placeholder="수량을 입력하세요">
-            <div class="field-error" th:if="${errors?.containsKey('quantity')}" th:text="${errors['quantity']}">
+            <input type="text" id="quantity" th:field="*{quantity}" th:errorclass="field-error" class="form-control" placeholder="수량을 입력하세요">
+            <div class="field-error" th:errors="*{quantity}">
                 수량 오류
             </div>
         </div>
