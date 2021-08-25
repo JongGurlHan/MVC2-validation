@@ -206,7 +206,6 @@ public class ValidationItemControllerV2 {
             //errorCode는 규칙이 있다!
         }
         if(item.getPrice() == null || item.getPrice() < 1000  || item.getPrice() > 1000000){
-//         bindingResult.addError(new FieldError("item", "price", item.getPrice(),false,new String[]{"range.item.price"},new Object[]{1000, 1000000}, null));
            bindingResult.rejectValue("price", "range", new Object[]{1000, 1000000}, null);
         }
         if(item.getQuantity() == null || item.getQuantity() >= 9999){
@@ -237,6 +236,11 @@ public class ValidationItemControllerV2 {
         redirectAttributes.addAttribute("status", true);
         return "redirect:/validation/v2/items/{itemId}";
     }
+
+
+
+
+
 
     @GetMapping("/{itemId}/edit")
     public String editForm(@PathVariable Long itemId, Model model) {
