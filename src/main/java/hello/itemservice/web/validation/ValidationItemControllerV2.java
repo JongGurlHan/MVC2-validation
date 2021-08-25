@@ -238,10 +238,6 @@ public class ValidationItemControllerV2 {
     }
 
 
-
-
-
-
     @GetMapping("/{itemId}/edit")
     public String editForm(@PathVariable Long itemId, Model model) {
         Item item = itemRepository.findById(itemId);
