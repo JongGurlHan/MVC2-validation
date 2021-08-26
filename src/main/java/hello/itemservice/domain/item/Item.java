@@ -12,11 +12,11 @@ public class Item {
 
     private Long id;
 
-    @NotBlank //빈값 + 공백만 있는 경우를 허용하지 않는다.
+    @NotBlank(message = "공백x") //빈값 + 공백만 있는 경우를 허용하지 않는다.
     private String itemName;
 
     @NotNull //null을 허용하지 않는다.
-    @Range(min = 1000, max =100000)
+    @Range(min = 1000, max =1000000)
     private Integer price;
 
     @NotNull
