@@ -2,7 +2,10 @@ package hello.itemservice.web.validation;
 
 import hello.itemservice.domain.item.Item;
 import hello.itemservice.domain.item.ItemRepository;
+import hello.itemservice.domain.item.SaveCheck;
+import hello.itemservice.domain.item.UpdateCheck;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -53,7 +56,7 @@ public class ValidationItemControllerV3 {
     }
 
 
-     @PostMapping("/add")
+   // @PostMapping("/add")
     public String addItem(@Validated @ModelAttribute Item item, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
 
         //@ScriptAssert 를 사용하도 되지만 제약조건이 많아서 오브젝트 오류는 그냥 자바코드로 하자
@@ -82,6 +85,35 @@ public class ValidationItemControllerV3 {
         return "redirect:/validation/v3/items/{itemId}";
     }
 
+    @PostMapping("/add")
+    public String addItem2(@Validated(SaveCheck.class) @ModelAttribute Item item, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+
+        //@ScriptAssert 를 사용하도 되지만 제약조건이 많아서 오브젝트 오류는 그냥 자바코드로 하자
+        //특정 필드가 아닌 복합 룰 검증
+        if(item.getPrice() != null && item.getQuantity() !=null){
+            int resultPrice = item.getPrice() * item.getQuantity();
+            if(resultPrice <10000){
+                //특정 필드의 오류가 아닌 global 오류이기 때문
+                bindingResult.reject("totalPriceMin" , new Object[]{10000, resultPrice},null);
+            }
+        }
+
+        //검증에 실패하면 다시 입력 폼으로
+        if(bindingResult.hasErrors()){
+            log.info("error ={}", bindingResult);
+            // model.addAttribute("errors", errors);
+            //bindingResult는 자동으로 뷰에 넘어가기 때문에 굳이 model.addAttribute에 넣지 않아도 된다.
+            return  "validation/v3/addForm";
+
+        }
+
+        //성공 로직
+        Item savedItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId", savedItem.getId());
+        redirectAttributes.addAttribute("status", true);
+        return "redirect:/validation/v3/items/{itemId}";
+    }
+
 
     @GetMapping("/{itemId}/edit")
     public String editForm(@PathVariable Long itemId, Model model) {
@@ -90,8 +122,30 @@ public class ValidationItemControllerV3 {
         return "validation/v3/editForm";
     }
 
-    @PostMapping("/{itemId}/edit")
+    //@PostMapping("/{itemId}/edit")
     public String edit(@PathVariable Long itemId, @Validated @ModelAttribute Item item, BindingResult bindingResult) {
+
+        //특정 필드가 아닌 복합 룰 검증
+        if(item.getPrice() != null && item.getQuantity() !=null){
+            int resultPrice = item.getPrice() * item.getQuantity();
+            if(resultPrice <10000){
+                //특정 필드의 오류가 아닌 global 오류이기 때문
+                bindingResult.reject("totalPriceMin" , new Object[]{10000, resultPrice},null);
+            }
+        }
+
+        //검증에 실패하면 다시 입력 폼으로
+        if(bindingResult.hasErrors()){
+            log.info("error ={}", bindingResult);
+            return  "validation/v3/editForm";
+        }
+
+        itemRepository.update(itemId, item);
+        return "redirect:/validation/v3/items/{itemId}";
+    }
+
+    @PostMapping("/{itemId}/edit")
+    public String editV2(@PathVariable Long itemId, @Validated(UpdateCheck.class) @ModelAttribute Item item, BindingResult bindingResult) {
 
         //특정 필드가 아닌 복합 룰 검증
         if(item.getPrice() != null && item.getQuantity() !=null){
