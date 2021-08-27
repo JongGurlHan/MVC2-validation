@@ -55,13 +55,16 @@ public class ValidationItemControllerV3 {
 
      @PostMapping("/add")
     public String addItem(@Validated @ModelAttribute Item item, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
-//        @Validated: item에대해서 자동으로 검증기가 수행된다.
-//        @Validated 는 검증기를 실행하라는 애노테이션이다.
-//        이 애노테이션이 붙으면 앞서 WebDataBinder 에 등록한 검증기를 찾아서 실행한다. 그런데 여러 검증기를
-//        등록한다면 그 중에 어떤 검증기가 실행되어야 할지 구분이 필요하다. 이때 supports() 가 사용된다.
-//        여기서는 supports(Item.class) 호출되고, 결과가 true 이므로 ItemValidator 의 validate() 가
-//        호출된다.
-        //검증이 끝나면 검증 결과가 bindingResult에 담겨진다.
+
+        //@ScriptAssert 를 사용하도 되지만 제약조건이 많아서 오브젝트 오류는 그냥 자바코드로 하자
+         //특정 필드가 아닌 복합 룰 검증
+         if(item.getPrice() != null && item.getQuantity() !=null){
+             int resultPrice = item.getPrice() * item.getQuantity();
+             if(resultPrice <10000){
+                 //특정 필드의 오류가 아닌 global 오류이기 때문
+                 bindingResult.reject("totalPriceMin" , new Object[]{10000, resultPrice},null);
+             }
+         }
 
         //검증에 실패하면 다시 입력 폼으로
         if(bindingResult.hasErrors()){
