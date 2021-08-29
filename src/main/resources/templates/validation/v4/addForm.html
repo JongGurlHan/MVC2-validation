@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <link th:href="@{/css/bootstrap.min.css}"
+          href="../css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 560px;
+        }
+        .field-error{
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="py-5 text-center">
+        <h2 th:text="#{page.addItem}">상품 등록</h2>
+    </div>
+
+    <form action="item.html" th:action th:object="${item}" method="post">
+
+<!--        <div th:if="${errors?.containsKey('globalError')}"> &lt;!&ndash;erros가 null이면 무시한다.&ndash;&gt;-->
+        <div th:if="${#fields.hasGlobalErrors()}"> <!--erros가 null이면 무시한다.-->
+            <p class="field-error" th:each="err: ${#fields.globalErrors()}" th:text="${err}">전체 오류 메시지</p>
+<!--            글로벌 오류는 여러개일 수 있기에 반복문 돌린다.-->
+        </div>
+
+
+        <div>
+            <label for="itemName" th:text="#{label.item.itemName}">상품명</label>
+            <input type="text" id="itemName" th:field="*{itemName}"
+                   th:errorclass="field-error" class="form-control" placeholder="이름을 입력하세요">
+<!--            -> th:field의 필드명으로 된 오류가 있다면  css 클래스("form-control")에 'field-error'를 추가해준다.-->
+<!--               th:class="${errors?.containsKey('itemName')} ? 'form-control field-error' : 'form-control'"-->
+
+<!--            <div class="field-error" th:if="${errors?.containsKey('itemName')}" th:text="${errors['itemName']}">-->
+            <!--에러가 있으면 해당 div 표시 if문 로직이 다 들어가져있다. 에러 없으면 출력안된다-->
+            <div class="field-error" th:errors="*{itemName}">
+                상품명 오류
+            </div>
+        </div>
+        <div>
+            <label for="price" th:text="#{label.item.price}">가격</label>
+            <input type="text" id="price" th:field="*{price}"
+                   th:errorclass="field-error"
+                   class="form-control" placeholder="가격을 입력하세요">
+<!--            th:field: 정상 상황ㅎ에서는 모델 객체의 값을 사용하지만, 오류가 발생하면 FieldError에서 보관한 값을 사용해서 값을 출력한다.-->
+            <div class="field-error" th:errors="*{price}">
+                가격 오류
+            </div>
+        </div>
+        <div>
+            <label for="quantity" th:text="#{label.item.quantity}">수량</label>
+            <input type="text" id="quantity" th:field="*{quantity}" th:errorclass="field-error" class="form-control" placeholder="수량을 입력하세요">
+            <div class="field-error" th:errors="*{quantity}">
+                수량 오류
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="row">
+            <div class="col">
+                <button class="w-100 btn btn-primary btn-lg" type="submit" th:text="#{button.save}">상품 등록</button>
+            </div>
+            <div class="col">
+                <button class="w-100 btn btn-secondary btn-lg"
+                        onclick="location.href='items.html'"
+                        th:onclick="|location.href='@{/validation/v4/items}'|"
+                        type="button" th:text="#{button.cancel}">취소</button>
+            </div>
+        </div>
+
+    </form>
+
+</div> <!-- /container -->
+</body>
+</html>
